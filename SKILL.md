@@ -9,14 +9,9 @@ Guide setup and usage of the doctest single-header C++17 testing framework in CM
 
 ## Setup Instructions
 
-### 1. Download doctest header
+### 1. Verify doctest header exists
 
-Download the single-header library to `third_party/doctest/doctest.h`:
-
-```bash
-mkdir -p third_party/doctest
-curl -L https://raw.githubusercontent.com/doctest/doctest/v2.4.12/doctest/doctest.h -o third_party/doctest/doctest.h
-```
+Ensure the doctest header is present at `third-party/doctest/doctest.h`. This file must already exist in the repository.
 
 ### 2. Create test runner entry point
 
@@ -24,7 +19,7 @@ Create `test_main.cpp` at project root:
 
 ```cpp
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "third_party/doctest/doctest.h"
+#include "doctest/doctest.h"
 ```
 
 This file provides doctest's `main()` function for the test executable.
@@ -41,17 +36,21 @@ add_executable(your_app
 )
 
 # Test executable
-add_executable(your_tests
+add_executable(tests
     test_main.cpp
     your_source.cpp  # Same sources as main app
 )
 
-target_include_directories(your_tests PRIVATE ${CMAKE_SOURCE_DIR})
-target_compile_definitions(your_tests PRIVATE ENABLE_DOCTEST)
+target_include_directories(tests PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/third-party
+)
+target_compile_definitions(tests PRIVATE ENABLE_DOCTEST)
 ```
 
 Key points:
 - Include the same source files in both targets
+- Add `third-party` to include directories so `#include "doctest/doctest.h"` resolves
 - Define `ENABLE_DOCTEST` only for the test target
 - This allows conditional compilation of test code
 
@@ -77,7 +76,7 @@ int add(int a, int b) {
 
 // Tests - only compiled when ENABLE_DOCTEST is defined
 #ifdef ENABLE_DOCTEST
-#include "third_party/doctest/doctest.h"
+#include "doctest/doctest.h"
 
 TEST_CASE("add function") {
     CHECK(add(2, 3) == 5);
@@ -101,8 +100,8 @@ TEST_CASE("add function") {
 cmake -B build
 cmake --build build
 
-./build/your_app      # Run application
-./build/your_tests    # Run tests
+./build/your_app   # Run application
+./build/tests      # Run tests
 ```
 
 ## When to Use This Skill
