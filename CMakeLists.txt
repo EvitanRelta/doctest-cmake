@@ -18,9 +18,6 @@ target_include_directories(factorial_app PRIVATE
 # Disable doctest in main application
 target_compile_definitions(factorial_app PRIVATE DOCTEST_CONFIG_DISABLE)
 
-# Testing support
-enable_testing()
-
 # Create a test runner that provides main() for doctest
 add_executable(tests
     test_main.cpp
@@ -31,5 +28,3 @@ target_include_directories(tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/third-party
 )
-
-add_test(NAME tests COMMAND tests)
