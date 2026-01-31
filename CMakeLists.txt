@@ -10,7 +10,13 @@ add_executable(factorial_app
     factorial.cpp
 )
 
-target_include_directories(factorial_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(factorial_app PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/third-party
+)
+
+# Disable doctest in main application
+target_compile_definitions(factorial_app PRIVATE DOCTEST_CONFIG_DISABLE)
 
 # Testing support
 enable_testing()
@@ -21,12 +27,9 @@ add_executable(tests
     factorial.cpp
 )
 
-target_include_directories(tests PRIVATE 
+target_include_directories(tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/third-party
 )
-
-# Define ENABLE_DOCTEST to enable tests in the source files
-target_compile_definitions(tests PRIVATE ENABLE_DOCTEST)
 
 add_test(NAME tests COMMAND tests)

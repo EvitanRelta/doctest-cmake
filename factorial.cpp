@@ -14,8 +14,7 @@ uint64_t factorial(int n) {
     return result;
 }
 
-// Tests are only compiled when building the test executable
-#ifdef ENABLE_DOCTEST
+// Tests are always included but disabled for main app via DOCTEST_CONFIG_DISABLE
 #include "doctest/doctest.h"
 
 TEST_CASE("factorial function") {
@@ -40,4 +39,3 @@ TEST_CASE("factorial function") {
         CHECK(factorial(-5) == 0);
     }
 }
-#endif // ENABLE_DOCTEST
