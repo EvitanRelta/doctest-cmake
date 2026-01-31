@@ -11,7 +11,7 @@ Guide setup and usage of the doctest single-header C++17 testing framework in CM
 
 ### 1. Verify doctest header exists
 
-Ensure the doctest header is present at `third-party/doctest/doctest.h`. This file must already exist in the repository.
+Ensure the doctest header is present (e.g. in the below example, it's at `third-party/doctest/doctest.h`). This file must already exist in the repository.
 
 ### 2. Create test runner entry point
 
@@ -35,24 +35,26 @@ add_executable(your_app
     your_source.cpp
 )
 
+# Disable doctest in main application
+target_compile_definitions(your_app PRIVATE DOCTEST_CONFIG_DISABLE)
+
 # Test executable
 add_executable(tests
     test_main.cpp
     your_source.cpp  # Same sources as main app
 )
 
-target_include_directories(tests PRIVATE 
+target_include_directories(tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/third-party
 )
-target_compile_definitions(tests PRIVATE ENABLE_DOCTEST)
 ```
 
 Key points:
 - Include the same source files in both targets
-- Add `third-party` to include directories so `#include "doctest/doctest.h"` resolves
-- Define `ENABLE_DOCTEST` only for the test target
-- This allows conditional compilation of test code
+- Include the directory of where `doctest.h` is, so `#include "doctest/doctest.h"` resolves
+- Use `DOCTEST_CONFIG_DISABLE` on the main app to strip out all test code
+- No preprocessor guards needed in source files - doctest handles this automatically
 
 ## Writing Tests
 
@@ -62,7 +64,7 @@ Write tests in the `.cpp` file where the code is **defined** (the implementation
 
 ### Pattern
 
-Add tests at the bottom of source files, guarded by `#ifdef ENABLE_DOCTEST`:
+Add tests at the bottom of source files:
 
 ```cpp
 // your_source.cpp
@@ -74,8 +76,7 @@ int add(int a, int b) {
     return a + b;
 }
 
-// Tests - only compiled when ENABLE_DOCTEST is defined
-#ifdef ENABLE_DOCTEST
+// Tests - automatically disabled in main app via DOCTEST_CONFIG_DISABLE
 #include "doctest/doctest.h"
 
 TEST_CASE("add function") {
@@ -83,15 +84,13 @@ TEST_CASE("add function") {
     CHECK(add(-1, 1) == 0);
     CHECK(add(0, 0) == 0);
 }
-
-#endif // ENABLE_DOCTEST
 ```
 
 ### Why this pattern
 
 - Tests live next to the code they test for easy maintenance
-- `ENABLE_DOCTEST` guard prevents test code from being compiled into production binaries
-- Avoids linker errors from multiple `main()` definitions
+- `DOCTEST_CONFIG_DISABLE` in the main app target strips out all test code automatically
+- No preprocessor guards needed in source files
 - No separate test directory structure needed
 
 ## Building and Running
